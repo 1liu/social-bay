@@ -6,6 +6,7 @@ firebase.initializeApp(config);
 
 const { validateSignupData, validateLoginData } = require('../util/validators');
 const { error } = require('console');
+
 exports.signup = (req, res) => {
   const newUser = {
     email: req.body.email,
@@ -106,9 +107,12 @@ exports.uploadImage = (req, res) => {
   const busboy = new BusBoy({ headers: req.headers });
 
   busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-    console.log(fieldname)
-    console.log(filename)
-    console.log(mimetype)
+    // console.log(fieldname)
+    // console.log(filename)
+    // console.log(mimetype)
+    if (mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
+      return res.status(400).json({ error: 'Wrong file type submitted' })
+    }
     const imageExtension = filename.split(".")[filename.split(".").length - 1];
     imageFileName = `${Math.round(
       Math.random() * 1000000000000
