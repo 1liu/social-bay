@@ -8,6 +8,14 @@ let db = {
       commentCount: 2
     }
   ],
+  comments: [
+    {
+      userHandle: 'user',
+      postId: 'idididid',
+      body: 'Hello!',
+      createdAt: '2019-03-15T10:59:52.798Z'
+    }
+  ],
   users: [
     {
       userId: 'dfsgsdfga',
