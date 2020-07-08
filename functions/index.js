@@ -63,7 +63,7 @@ app.post('/posts', (req, res) => {
 })
 
 /* signup route */
-app.post('/signup', (req, res)=>{
+app.post('/signup', (req, res) => {
   const newUser = {
     email: req.body.email,
     password: req.body.password,
@@ -71,6 +71,7 @@ app.post('/signup', (req, res)=>{
     handle: req.body.handle,
   }
   // TODO validate signup data
+  let token, userId;
   db.collection('users').doc(`${newUser.handle}`)
     .get()
     .then((doc) => {
@@ -83,16 +84,34 @@ app.post('/signup', (req, res)=>{
           .createUserWithEmailAndPassword(newUser.email, newUser.password);
       }
     })
-  .then(data => {
-    return data.user.getIdToken();
-  })
-  .then(token => {
-    return res.status(201).json({token})
-  })
-  .catch(err=>{
-    console.error(err);
-    res.status(500).json({error: err.code})
-  })
+    .then(data => {
+      userId = data.user.uid;
+      return data.user.getIdToken();
+    })
+    .then(theToken => {
+      token = theToken;
+      const userCredentials = {
+        handle: newUser.handle,
+        email: newUser.email,
+        createdAt: new Date().toISOString(),
+        userId
+      };
+      return db.doc(`/users/${newUser.handle}`).set(userCredentials);
+      // return res.status(201).json({ token })
+    })
+    .then(()=>{
+      return res.status(201).json({token})
+    })
+    .catch(err => {
+      console.error(err);
+      if (err.code === "auth/email-already-in-use") {
+        return res.status(400).json({
+          email: 'email is already in use'
+        })
+      } else {
+        return res.status(500).json({ error: err.code })
+      }
+    })
 
 })
 
