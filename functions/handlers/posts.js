@@ -21,14 +21,18 @@ exports.postOnePost = (req, res) => {
   const newPost = {
     body: req.body.body,
     userHandle: req.user.handle,
-    createdAt: new Date().toISOString()
+    userImage: req.user.imageUrl,
+    createdAt: new Date().toISOString(),
+    likeCount: 0,
+    commnetCount: 0
   };
 
-  db.collection('posts').add(newPost)
+  db.collection('posts')
+    .add(newPost)
     .then((doc) => {
-      return res.json({
-        message: `document ${doc.id} created successfully`
-      });
+      const resPost = newPost;
+      resPost.postId = doc.id;
+      return res.json(resPost);
     })
     .catch(err => {
       res.status(500).json({
@@ -64,7 +68,7 @@ exports.getPost = (req, res) => {
 }
 // post one commnet
 exports.postComment = (req, res) => {
-  if(req.body.body.trim()==='') return res.status(400).json({error: 'Must not be empty'})
+  if (req.body.body.trim() === '') return res.status(400).json({ error: 'Must not be empty' })
 
   const newComment = {
     body: req.body.body,
@@ -75,17 +79,17 @@ exports.postComment = (req, res) => {
   }
 
   db.doc(`/posts/${req.params.postId}`).get()
-  .then(doc=>{
-    if(!doc.exists){
-      return res.status(404).json({error: 'Post not found'})
-    }
-    return db.collection('comments').add(newComment)
-  })
-  .then(()=>{
-    return res.json(newComment);
-  })
-  .catch(err=>{
-    console.error(err);
-    return res.status(500).json({error: err.code});
-  })
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Post not found' })
+      }
+      return db.collection('comments').add(newComment)
+    })
+    .then(() => {
+      return res.json(newComment);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    })
 }
