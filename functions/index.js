@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 
 const { getAllPosts, postOnePost} = require('./handlers/posts');
-const { signup, login, uploadImage, addUserDetail} = require('./handlers/users');
+const { signup, login, uploadImage, addUserDetail, getAuthUser} = require('./handlers/users');
 const {FBAuth} = require('./util/fbAuth')
 
 
@@ -17,4 +17,5 @@ app.post('/signup', signup)
 app.post('/login', login)
 app.post('/user/image', FBAuth, uploadImage)
 app.post('/user', FBAuth, addUserDetail);
+app.get('/user', FBAuth, getAuthUser);
 exports.api = functions.https.onRequest(app);
