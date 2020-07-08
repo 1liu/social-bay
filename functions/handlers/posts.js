@@ -38,6 +38,7 @@ exports.postOnePost = (req, res) => {
     });
 }
 
+// fetch one post
 exports.getPost = (req, res) => {
   let postData = {};
   db.doc(`/posts/${req.params.postId}`).get()
@@ -60,4 +61,31 @@ exports.getPost = (req, res) => {
       console.error(err);
       return res.status(500).json({ error: err.code });
     })
+}
+// post one commnet
+exports.postComment = (req, res) => {
+  if(req.body.body.trim()==='') return res.status(400).json({error: 'Must not be empty'})
+
+  const newComment = {
+    body: req.body.body,
+    createdAt: new Date().toISOString(),
+    postId: req.params.postId,
+    userHandle: req.user.handle,
+    userImage: req.user.imageUrl
+  }
+
+  db.doc(`/posts/${req.params.postId}`).get()
+  .then(doc=>{
+    if(!doc.exists){
+      return res.status(404).json({error: 'Post not found'})
+    }
+    return db.collection('comments').add(newComment)
+  })
+  .then(()=>{
+    return res.json(newComment);
+  })
+  .catch(err=>{
+    console.error(err);
+    return res.status(500).json({error: err.code});
+  })
 }
