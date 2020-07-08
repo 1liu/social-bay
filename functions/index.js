@@ -62,6 +62,10 @@ app.post('/posts', (req, res) => {
     });
 })
 
+const isEmpty = (string) =>{
+  if(string.trim() === "") return true;
+  else return false;
+}
 /* signup route */
 app.post('/signup', (req, res) => {
   const newUser = {
@@ -69,6 +73,36 @@ app.post('/signup', (req, res) => {
     password: req.body.password,
     confirmedPassword: req.body.confirmedPassword,
     handle: req.body.handle,
+  }
+
+  const isEmail = (email)=> {
+    const regEx = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+    if(email.match(regEx)) return true;
+    else return false;
+  }
+  //validation
+  let errors = {}
+
+  if(isEmpty(newUser.email)){
+    errors.email = 'Email is needed'
+  }else if(!isEmail(newUser.email)){
+    errors.email = 'Not a valid email address'
+  }
+
+  if(isEmpty(newUser.password)){
+    errors.password = 'Must not be empty'
+  }
+
+  if(newUser.password !== newUser.confirmedPassword){
+    errors.confirmedPassword = 'Passwords must match'
+  }
+
+  if (isEmpty(newUser.handle)) {
+    errors.handle = 'Must not be empty'
+  }
+
+  if(Object.keys(errors).length>0){
+    return res.status(400).json(errors);
   }
   // TODO validate signup data
   let token, userId;
