@@ -83,13 +83,17 @@ exports.delteNotificationOnUnLike = functions.firestore.document('likes/{id}')
       });
   })
 
-exports.createNotificationOnComment = functions.firestore.document('likes/{id}')
-  .onCreate(snapshot => {
-    return db.doc(`/posts/${snapshot.data().postId}`).get()
-      .then(doc => {
-        if (doc.exists) {
+exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
+  .onCreate((snapshot) => {
+    return db
+      .doc(`/posts/${snapshot.data().postId}`)
+      .get()
+      .then((doc) => {
+        if (
+          doc.exists
+        ) {
           return db.doc(`/notifications/${snapshot.id}`).set({
-            createdAt: new Date().toIsoString(),
+            createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,
             sender: snapshot.data().userHandle,
             type: 'comment',
@@ -98,7 +102,5 @@ exports.createNotificationOnComment = functions.firestore.document('likes/{id}')
           });
         }
       })
-      .catch(err => {
-        console.error(err);
-      })
+      .catch((err) => console.error(err));
   })
