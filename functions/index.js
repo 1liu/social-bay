@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 
 const express = require('express');
 const app = express();
+const db = require('./util/admin');
 
 const {
   getAllPosts,
@@ -45,3 +46,27 @@ app.post('/user/image', FBAuth, uploadImage)
 app.post('/user', FBAuth, addUserDetail);
 app.get('/user', FBAuth, getAuthUser);
 exports.api = functions.https.onRequest(app);
+
+exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
+  .onCreate(snapshot => {
+    db.document(`/posts/${snapshot.data().postId}`).get()
+      .then(doc => {
+        if (doc.exists) {
+          return db.doc(`/notifications/${snapshot.id}`).set({
+          createdAt: new Date().toIsoString(),
+          recipient: doc.data().userHandle,
+          sender: snapshot.data().userHandle,
+          type: 'like',
+          read: false,
+          postId: doc.id
+        });
+      }
+    })
+    .then(()=>{
+      return;
+    })
+    .catch(err=>{
+      console.error(err);
+      return;
+    })
+  })
