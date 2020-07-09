@@ -19,13 +19,23 @@ let db = {
   users: [
     {
       userId: 'dfsgsdfga',
-      email:'user@email.com',
+      email: 'user@email.com',
       handle: 'user',
       createdAt: '2020-07-08T04:50:56.919Z',
       imageUrl: 'image/dfghdfg',
       bio: 'Hello World',
       website: 'https://user.com',
       location: 'LA, USA'
+    }
+  ],
+  notifications: [
+    {
+      recipient: 'user',
+      sender: 'john',
+      read: 'true | false',
+      screamId: 'sssssss',
+      type: 'like | comment',
+      createdAt: '2020-07-08T04:50:56.919Z'
     }
   ]
 }
