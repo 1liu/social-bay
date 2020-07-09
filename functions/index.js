@@ -70,3 +70,27 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
       return;
     })
   })
+
+exports.createNotificationOnComment = functions.firestore.document('likes/{id}')
+  .onCreate(snapshot => {
+    db.document(`/posts/${snapshot.data().postId}`).get()
+      .then(doc => {
+        if (doc.exists) {
+          return db.doc(`/notifications/${snapshot.id}`).set({
+            createdAt: new Date().toIsoString(),
+            recipient: doc.data().userHandle,
+            sender: snapshot.data().userHandle,
+            type: 'comment',
+            read: false,
+            postId: doc.id
+          });
+        }
+      })
+      .then(() => {
+        return;
+      })
+      .catch(err => {
+        console.error(err);
+        return;
+      })
+  })
