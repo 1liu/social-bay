@@ -1,8 +1,9 @@
+/* eslint-disable promise/always-return */
 const functions = require('firebase-functions');
 
 const express = require('express');
 const app = express();
-const db = require('./util/admin');
+const { db } = require('./util/admin');
 
 const {
   getAllPosts,
@@ -47,33 +48,44 @@ app.post('/user', FBAuth, addUserDetail);
 app.get('/user', FBAuth, getAuthUser);
 exports.api = functions.https.onRequest(app);
 
-exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
-  .onCreate(snapshot => {
-    db.document(`/posts/${snapshot.data().postId}`).get()
-      .then(doc => {
-        if (doc.exists) {
+exports.createNotificationOnLike = functions
+  .firestore.document('likes/{id}')
+  .onCreate((snapshot) => {
+    return db
+      .doc(`/posts/${snapshot.data().postId}`)
+      .get()
+      .then((doc) => {
+        if (
+          doc.exists
+        ) {
           return db.doc(`/notifications/${snapshot.id}`).set({
-          createdAt: new Date().toIsoString(),
-          recipient: doc.data().userHandle,
-          sender: snapshot.data().userHandle,
-          type: 'like',
-          read: false,
-          postId: doc.id
-        });
-      }
-    })
-    .then(()=>{
-      return;
-    })
-    .catch(err=>{
-      console.error(err);
-      return;
-    })
+            createdAt: new Date().toISOString(),
+            recipient: doc.data().userHandle,
+            sender: snapshot.data().userHandle,
+            type: 'like',
+            read: false,
+            postId: doc.id
+          });
+        }
+      })
+      .catch((err) => console.error(err));
+  });
+
+
+exports.delteNotificationOnUnLike = functions.firestore.document('likes/{id}')
+  .onDelete((snapshot) => {
+    return db
+      .doc(`/notifications/${snapshot.id}`)
+      .delete()
+      .catch((err) => {
+        console.error(err);
+        return;
+      });
   })
 
 exports.createNotificationOnComment = functions.firestore.document('likes/{id}')
   .onCreate(snapshot => {
-    db.document(`/posts/${snapshot.data().postId}`).get()
+    return db.doc(`/posts/${snapshot.data().postId}`).get()
       .then(doc => {
         if (doc.exists) {
           return db.doc(`/notifications/${snapshot.id}`).set({
@@ -86,11 +98,7 @@ exports.createNotificationOnComment = functions.firestore.document('likes/{id}')
           });
         }
       })
-      .then(() => {
-        return;
-      })
       .catch(err => {
         console.error(err);
-        return;
       })
   })
