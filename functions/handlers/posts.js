@@ -24,7 +24,7 @@ exports.postOnePost = (req, res) => {
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
     likeCount: 0,
-    commnetCount: 0
+    commentCount: 0
   };
 
   db.collection('posts')
@@ -66,7 +66,7 @@ exports.getPost = (req, res) => {
       return res.status(500).json({ error: err.code });
     })
 }
-// post one commnet
+// post one comment
 exports.postComment = (req, res) => {
   if (req.body.body.trim() === '') return res.status(400).json({ error: 'Must not be empty' })
 
@@ -83,7 +83,11 @@ exports.postComment = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Post not found' })
       }
-      return db.collection('comments').add(newComment)
+      //
+      return doc.ref.update({ commentCount: doc.data().commentCount + 1 });
+    })
+    .then(() => {
+      return db.collection('comments').add(newComment);
     })
     .then(() => {
       return res.json(newComment);
@@ -140,7 +144,7 @@ exports.likePost = (req, res) => {
 
 }
 
-
+//unlike a post
 exports.unlikePost = (req, res) => {
   const likeDocument = db.collection('likes')
     .where('userHandle', '==', req.user.handle)
