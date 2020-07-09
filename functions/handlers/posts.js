@@ -9,7 +9,10 @@ exports.getAllPosts = (req, res) => {
           postId: doc.id,
           body: doc.data().body,
           userHandle: doc.data().userHandle,
-          createdAt: doc.data().createdAt
+          createdAt: doc.data().createdAt,
+          commentCount: doc.data().commentCount,
+          likeCount: doc.data().likeCount,
+          userImage: doc.data().userImage
         });
       })
       return res.json(posts);
@@ -68,7 +71,9 @@ exports.getPost = (req, res) => {
 }
 // post one comment
 exports.postComment = (req, res) => {
-  if (req.body.body.trim() === '') return res.status(400).json({ error: 'Must not be empty' })
+  if (req.body.body.trim() === '') {
+    return res.status(400).json({ comment: 'Must not be empty' })
+  }
 
   const newComment = {
     body: req.body.body,
@@ -187,22 +192,22 @@ exports.unlikePost = (req, res) => {
 exports.deletePost = (req, res) => {
   const document = db.doc(`/posts/${req.params.postId}`);
   document.get()
-  .then(doc=>{
-    if(!doc.exists){
-      return res.status(404).json({error: "Post not found"})
-    }
-    if(doc.data().userHandle!==req.user.handle){
-      return res.status(401).json({error: "unauthorized"})
-    }
-    else{
-      return document.delete();
-    }
-  })
-  .then(()=>{
-    return res.json({message: "Post deleted"})
-  })
-  .catch(err=>{
-    console.error(err);
-    res.status(500).json({error: err.code});
-  })
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Post not found" })
+      }
+      if (doc.data().userHandle !== req.user.handle) {
+        return res.status(401).json({ error: "unauthorized" })
+      }
+      else {
+        return document.delete();
+      }
+    })
+    .then(() => {
+      return res.json({ message: "Post deleted" })
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    })
 }
