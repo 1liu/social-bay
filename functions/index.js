@@ -7,7 +7,9 @@ const {
   getAllPosts,
   postOnePost,
   getPost,
-  postComment
+  postComment,
+  likePost,
+  unlikePost
 } = require('./handlers/posts');
 
 const {
@@ -29,8 +31,8 @@ app.get('/posts/:postId', getPost);
 //todo: delete post
 //todo: like a post
 //tode: unlike a post
-// app.get('/posts/:postId/like', likePost);
-// app.get('/posts/:postId/unlike', unlikePost);
+app.get('/posts/:postId/like', FBAuth, likePost);
+app.get('/posts/:postId/unlike', FBAuth, unlikePost);
 //tode: comment a post
 app.post('/posts/:postId/comment', FBAuth, postComment);
 
