@@ -20,7 +20,9 @@ const {
   login,
   uploadImage,
   addUserDetail,
-  getAuthUser
+  getAuthUser,
+  getUserDetail,
+  markNotificationRead
 } = require('./handlers/users');
 
 const { FBAuth } = require('./util/fbAuth')
@@ -46,6 +48,8 @@ app.post('/login', login)
 app.post('/user/image', FBAuth, uploadImage)
 app.post('/user', FBAuth, addUserDetail);
 app.get('/user', FBAuth, getAuthUser);
+app.get('/user/:handle', getUserDetail);
+app.post('/notifications', FBAuth, markNotificationRead);
 exports.api = functions.https.onRequest(app);
 
 exports.createNotificationOnLike = functions
