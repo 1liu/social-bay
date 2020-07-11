@@ -19,7 +19,7 @@ exports.signup = (req, res) => {
 
   //validation
   const { valid, errors } = validateSignupData(newUser);
-  if (!valid) return res.status(400).json({ errors });
+  if (!valid) return res.status(400).json(errors);
   // assign blank img
   const noImg = 'blank-profile-picture.png';
   let token, userId;
